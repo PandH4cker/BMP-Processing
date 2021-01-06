@@ -30,3 +30,9 @@ def readLittleEndian(l):
     """
 
     return str(int.from_bytes(l, byteorder='little'))
+
+def npToArray(ndarray):
+    octets = []
+    for i in range(len(ndarray)):
+        octets.append(int(ndarray[i]))
+    return bytearray(octets)

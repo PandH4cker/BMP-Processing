@@ -5,6 +5,7 @@ import argparse, os, sys
 from utils import helpers as hp
 from processors.printHeader import printHeader
 from processors.printPixel import printPixel
+from processors.imageRotate import imageRotate
 from bmp import BMP
 
 def process_bmp():
@@ -55,7 +56,9 @@ def process_bmp():
     elif len([x for x in (args.rotate, args.output) if x is not None]) == 1:
         parser.error('--rotate and --output mus be given together')
     elif len([x for x in (args.rotate, args.output) if x is not None]) == 2:
-        pass #TODO
+        degree = args.rotate
+        outputFile = args.output
+        imageRotate(bmp, degree, outputFile)
     else:
         printHeader(bmp)
 
