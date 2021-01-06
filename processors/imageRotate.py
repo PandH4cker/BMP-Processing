@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import numpy as np, os
+import numpy as np
 from utils import helpers as hp
 
 def imageRotate(bmp, degree, outputFile):

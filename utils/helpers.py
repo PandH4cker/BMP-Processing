@@ -57,10 +57,10 @@ def saveBMP(bmp, imageData, outputFile):
     headerSize = bytearray(bmp.headerSize)
     f.write(headerSize)
 
-    width = bytearray(bmp.width)
+    width = len(imageData[0]).to_bytes(4, byteorder='little')
     f.write(width)
-
-    height = bytearray(bmp.height)
+    
+    height = len(imageData).to_bytes(4, byteorder='little')
     f.write(height)
 
     planes = bytearray(bmp.planes)
@@ -87,8 +87,8 @@ def saveBMP(bmp, imageData, outputFile):
     numberOfImportantColors = bytearray(bmp.numberOfImportantColors)
     f.write(numberOfImportantColors)
 
-    height = int(readLittleEndian(bmp.height))
-    width = int(readLittleEndian(bmp.width))
+    height = len(imageData)
+    width = len(imageData[0])
 
     for i in range(height):
         for j in range(width):
