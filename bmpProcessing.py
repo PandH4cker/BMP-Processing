@@ -41,22 +41,27 @@ def process_bmp():
                        help='pixel to print')
 
     parser.add_argument('--rotate',
-                       '-r',
-                       type=int,
-                       choices=[90, 180, 270],
-                       metavar='<degree of rotation>',
-                       help='rotate the image')
+                        '-r',
+                        type=int,
+                        choices=[90, 180, 270],
+                        metavar='<degree of rotation>',
+                        help='rotate the image')
     parser.add_argument('--scale',
-                       '-s',
-                       type=int,
-                       nargs='+',
-                       action=required_length(1, 2),
-                       metavar=('<scaleRatio> | [<width>', '<height>'),
-                       help='scale/shrink the image')
-    parser.add_argument('--duplicate',
-                       '-d',
-                       action='store_true',
-                       help='duplicate the file')
+                        '-s',
+                        type=int,
+                        nargs='+',
+                        action=required_length(1, 2),
+                        metavar=('<scaleRatio> | [<width>', '<height>'),
+                        help='scale/shrink the image')
+    #parser.add_argument('--duplicate',
+    #                    '-d',
+    #                    action='store_true',
+    #                    help='duplicate the file')
+    parser.add_argument('--contrast',
+                        '-c',
+                        type=float,
+                        metavar='<contrast factor>',
+                        help='apply a factor contrast')
     parser.add_argument('--output',
                         '-o',
                         type=str,
@@ -84,43 +89,50 @@ def process_bmp():
         elif args.header:
             printHeader(bmp)
             sys.exit(0)
-
-        if (
-            len([x for x in (args.rotate, args.output) if x is not None]) in (0, 1) and
-            len([x for x in (args.scale, args.output) if x is not None]) in (0, 1) and
-            len([x for x in (args.duplicate, args.output) if x is not None]) in (0, 1)
-        ):
-            parser.error('--rotate/--scale/--duplicate and --output must be given together')
         
-        if (args.rotate and args.duplicate) or (args.scale and args.duplicate):
-            parser.error('--duplicate cannot be given with --rotate/--scale')
+        if (args.rotate or args.scale or args.contrast):
+            if not hp.atLeastOne(args.output, (
+                args.rotate,
+                args.scale,
+                #args.duplicate,
+                args.contrast
+            )):
+                parser.error('--rotate/--scale/--contrast and --output must be given together')
+        
+        #if hp.atLeastOne(args.duplicate, (
+        #    args.rotate, 
+        #    args.scale, 
+        #    args.contrast
+        #)):
+        #    parser.error('--duplicate cannot be given with --rotate/--scale/--contrast')
 
-        if len([x for x in (args.rotate, args.output) if x is not None]) == 2:
+        if args.rotate:
             degree = args.rotate
-            outputFile = args.output
-            bmp.imageData = imageRotate(bmp, degree, outputFile)
-            print('coucou')
+            bmp.imageData = imageRotate(bmp, degree)
 
-        if len([x for x in (args.scale, args.output) if x is not None]) == 2:
+        if args.scale:
             if len(args.scale) == 2:
                 width, height = args.scale
-                outputFile = args.output
-                bmp.imageData = imageScale(bmp, height, width, outputFile)
+                bmp.imageData = imageScale(bmp, height, width)
             else:
                 scaleRatio = args.scale[0]
-                outputFile = args.output
 
                 height = int(hp.readLittleEndian(bmp.height))
                 width = int(hp.readLittleEndian(bmp.width))
 
-                bmp.imageData = imageScale(bmp, height * scaleRatio, width * scaleRatio, outputFile)
-                print('coucou2')
-        if len([x for x in (args.duplicate, args.output) if x is not None]) == 2:
+                bmp.imageData = imageScale(bmp, height * scaleRatio, width * scaleRatio)
+
+        #if args.duplicate:
+        #    outputFile = args.output
+        #    hp.saveBMP(bmp, bmp.imageData, outputFile)
+        #    sys.exit(0)
+
+        if args.output:
             outputFile = args.output
             hp.saveBMP(bmp, bmp.imageData, outputFile)
-
-        outputFile = args.output
-        hp.saveBMP(bmp, bmp.imageData, outputFile)
+            sys.exit(0)
+        
+        parser.error('Give at least one more argument')
     else:
         filename = args.png
 

@@ -4,5 +4,5 @@
 import numpy as np
 from utils import helpers as hp
 
-def imageRotate(bmp, degree, outputFile):
+def imageRotate(bmp, degree):
     return np.rot90(bmp.imageData, k=int(degree/90))

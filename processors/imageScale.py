@@ -12,5 +12,5 @@ def scale(image, nR, nC):
         ] for r in range(nR)
     ]
 
-def imageScale(bmp, nR, nC, outputFile):
+def imageScale(bmp, nR, nC):
     return scale(bmp.imageData, nR, nC)
