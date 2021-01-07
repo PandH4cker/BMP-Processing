@@ -13,5 +13,4 @@ def scale(image, nR, nC):
     ]
 
 def imageScale(bmp, nR, nC, outputFile):
-    scaledImage = scale(bmp.imageData, nR, nC)
-    hp.saveBMP(bmp, scaledImage, outputFile)
+    return scale(bmp.imageData, nR, nC)
