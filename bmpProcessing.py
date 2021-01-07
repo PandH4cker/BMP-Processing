@@ -7,6 +7,7 @@ from processors.printHeader import printHeader
 from processors.printPixel import printPixel
 from processors.imageRotate import imageRotate
 from processors.imageScale import imageScale
+from processors.imageContrast import imageContrast
 from middlewares.length import required_length
 from formats.bmp import BMP
 from formats.png import PNG
@@ -121,6 +122,10 @@ def process_bmp():
                 width = int(hp.readLittleEndian(bmp.width))
 
                 bmp.imageData = imageScale(bmp, height * scaleRatio, width * scaleRatio)
+        
+        if args.contrast:
+            factor = args.contrast
+            bmp.imageData = imageContrast(bmp, factor)
 
         #if args.duplicate:
         #    outputFile = args.output

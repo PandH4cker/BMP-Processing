@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from utils import helpers as hp
+import numpy as np
 
 def scale(image, nR, nC):
     nR0 = len(image)
@@ -13,4 +14,4 @@ def scale(image, nR, nC):
     ]
 
 def imageScale(bmp, nR, nC):
-    return scale(bmp.imageData, nR, nC)
+    return np.array(scale(bmp.imageData, nR, nC)).astype(float)
