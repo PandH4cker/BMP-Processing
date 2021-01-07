@@ -8,7 +8,7 @@ from processors.printPixel import printPixel
 from processors.imageRotate import imageRotate
 from processors.imageScale import imageScale
 from middlewares.length import required_length
-from bmp import BMP
+from formats.bmp import BMP
 
 def process_bmp():
     """Process a given BMP Image in parameter
@@ -90,7 +90,7 @@ def process_bmp():
 
             height = int(hp.readLittleEndian(bmp.height))
             width = int(hp.readLittleEndian(bmp.width))
-            
+
             imageScale(bmp, height * scaleRatio, width * scaleRatio, outputFile)
 
     else:
