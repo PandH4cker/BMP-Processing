@@ -45,7 +45,8 @@ def saveBMP(bmp, imageData, outputFile):
     signature = bytearray(bmp.signature)
     f.write(signature)
 
-    totalSize = bytearray(bmp.totalSize)
+    totalSize = len(imageData[0]) * len(imageData) * 3 + 54
+    totalSize = totalSize.to_bytes(4, byteorder='little')
     f.write(totalSize)
 
     appImage = bytearray(bmp.appImage)
@@ -72,7 +73,8 @@ def saveBMP(bmp, imageData, outputFile):
     compressionType = bytearray(bmp.compressionType)
     f.write(compressionType)
 
-    imageSize = bytearray(bmp.imageSize)
+    imageSize = len(imageData[0]) * len(imageData) * 3
+    imageSize = imageSize.to_bytes(4, byteorder='little')
     f.write(imageSize)
 
     hRes = bytearray(bmp.hRes)
