@@ -9,6 +9,7 @@ from processors.imageRotate import imageRotate
 from processors.imageScale import imageScale
 from middlewares.length import required_length
 from formats.bmp import BMP
+from formats.png import PNG
 
 def process_bmp():
     """Process a given BMP Image in parameter
@@ -17,12 +18,16 @@ def process_bmp():
 
     # Parsing des arguments
     parser = argparse.ArgumentParser(description='BMP reader')
-    parser.add_argument('--bmp',
-                        type=str,
-                        metavar='<bmp file name>', 
-                        help='image file to parse', 
-                        default='image.bmp', 
-                        required=True)
+
+    formatParser = parser.add_mutually_exclusive_group(required=True)
+    formatParser.add_argument('--bmp',
+                               type=str,
+                               metavar='<bmp file name>', 
+                               help='image file to parse')
+    formatParser.add_argument('--png',
+                              type=str,
+                              metavar='<png file name>',
+                              help='image file to parse')
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--header',
@@ -55,46 +60,58 @@ def process_bmp():
                         help='image output file')
 
     args = parser.parse_args()
-    file_name = args.bmp
 
-    if not os.path.isfile(file_name):
-        print('"{}" does not exist'.format(file_name), file=sys.stderr)
-        sys.exit(-1)
-    print('Success Opening {}...'.format(file_name))
+    filename = ""
+    if args.bmp:
+        filename = args.bmp
 
-    bmp = BMP(file_name)
+        if not os.path.isfile(filename):
+            print('"{}" does not exist'.format(filename), file=sys.stderr)
+            sys.exit(-1)
+        print('Success Opening {}...'.format(filename))
 
-    if args.print_color:
-        width, height = args.print_color
-        printPixel(bmp, width, height)
+        bmp = BMP(filename)
 
-    elif (
-        len([x for x in (args.rotate, args.output) if x is not None]) == 1 and
-        len([x for x in (args.scale, args.output) if x is not None]) == 1
-    ):
-        parser.error('--rotate/--scale and --output must be given together')
+        if args.print_color:
+            width, height = args.print_color
+            printPixel(bmp, width, height)
+        
+        elif args.header:
+            printHeader(bmp)
 
-    elif len([x for x in (args.rotate, args.output) if x is not None]) == 2:
-        degree = args.rotate
-        outputFile = args.output
-        imageRotate(bmp, degree, outputFile)
+        elif (
+            len([x for x in (args.rotate, args.output) if x is not None]) in (0, 1) and
+            len([x for x in (args.scale, args.output) if x is not None]) in (0, 1)
+        ):
+            parser.error('--rotate/--scale and --output must be given together')
 
-    elif len([x for x in (args.scale, args.output) if x is not None]) == 2:
-        if len(args.scale) == 2:
-            width, height = args.scale
+        elif len([x for x in (args.rotate, args.output) if x is not None]) == 2:
+            degree = args.rotate
             outputFile = args.output
-            imageScale(bmp, height, width, outputFile)
-        else:
-            scaleRatio = args.scale[0]
-            outputFile = args.output
+            imageRotate(bmp, degree, outputFile)
 
-            height = int(hp.readLittleEndian(bmp.height))
-            width = int(hp.readLittleEndian(bmp.width))
+        elif len([x for x in (args.scale, args.output) if x is not None]) == 2:
+            if len(args.scale) == 2:
+                width, height = args.scale
+                outputFile = args.output
+                imageScale(bmp, height, width, outputFile)
+            else:
+                scaleRatio = args.scale[0]
+                outputFile = args.output
 
-            imageScale(bmp, height * scaleRatio, width * scaleRatio, outputFile)
+                height = int(hp.readLittleEndian(bmp.height))
+                width = int(hp.readLittleEndian(bmp.width))
 
+                imageScale(bmp, height * scaleRatio, width * scaleRatio, outputFile)
     else:
-        printHeader(bmp)
+        filename = args.png
+
+        if not os.path.isfile(filename):
+            print('"{}" does not exist'.format(filename), file=sys.stderr)
+            sys.exit(-1)
+        print('Success Opening {}...'.format(filename))
+        
+        png = PNG(filename)
 
 if __name__ == '__main__':
     process_bmp()
