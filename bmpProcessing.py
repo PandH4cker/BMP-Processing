@@ -8,6 +8,7 @@ from processors.printPixel import printPixel
 from processors.imageRotate import imageRotate
 from processors.imageScale import imageScale
 from processors.imageContrast import imageContrast
+from processors.imageGrayscale import imageGrayscale
 from middlewares.length import required_length
 from formats.bmp import BMP
 from formats.png import PNG
@@ -54,15 +55,15 @@ def process_bmp():
                         action=required_length(1, 2),
                         metavar=('<scaleRatio> | [<width>', '<height>'),
                         help='scale/shrink the image')
-    #parser.add_argument('--duplicate',
-    #                    '-d',
-    #                    action='store_true',
-    #                    help='duplicate the file')
     parser.add_argument('--contrast',
                         '-c',
                         type=float,
                         metavar='<contrast factor>',
                         help='apply a factor contrast')
+    parser.add_argument('--grayscale',
+                        '-gs',
+                        action='store_true',
+                        help='to grayscale image')
     parser.add_argument('--output',
                         '-o',
                         type=str,
@@ -91,22 +92,15 @@ def process_bmp():
             printHeader(bmp)
             sys.exit(0)
         
-        if (args.rotate or args.scale or args.contrast):
+        if (args.rotate or args.scale or args.contrast or args.grayscale):
             if not hp.atLeastOne(args.output, (
                 args.rotate,
                 args.scale,
-                #args.duplicate,
-                args.contrast
+                args.contrast,
+                args.grayscale
             )):
-                parser.error('--rotate/--scale/--contrast and --output must be given together')
+                parser.error('--rotate/--scale/--contrast/--grayscale and --output must be given together')
         
-        #if hp.atLeastOne(args.duplicate, (
-        #    args.rotate, 
-        #    args.scale, 
-        #    args.contrast
-        #)):
-        #    parser.error('--duplicate cannot be given with --rotate/--scale/--contrast')
-
         if args.rotate:
             degree = args.rotate
             bmp.imageData = imageRotate(bmp, degree)
@@ -126,11 +120,9 @@ def process_bmp():
         if args.contrast:
             factor = args.contrast
             bmp.imageData = imageContrast(bmp, factor)
-
-        #if args.duplicate:
-        #    outputFile = args.output
-        #    hp.saveBMP(bmp, bmp.imageData, outputFile)
-        #    sys.exit(0)
+        
+        if args.grayscale:
+            bmp.imageData = imageGrayscale(bmp)
 
         if args.output:
             outputFile = args.output

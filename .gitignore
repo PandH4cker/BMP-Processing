@@ -141,4 +141,6 @@ cython_debug/
 .vscode
 
 # Tests Images
-test.bmp
+test*.bmp
+tigre.bmp
+sample_640×426.bmp
