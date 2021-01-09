@@ -10,6 +10,7 @@ from processors.imageScale import imageScale
 from processors.imageContrast import imageContrast
 from processors.imageGrayscale import imageGrayscale
 from processors.imageBinary import imageBinary
+from processors.imageInvert import imageInvert
 from middlewares.length import required_length
 from formats.bmp import BMP
 from formats.png import PNG
@@ -69,6 +70,10 @@ def process_bmp():
                         '-b',
                         action='store_true',
                         help='to binary image')
+    parser.add_argument('--invert',
+                        '-i',
+                        action='store_true',
+                        help='to inverted image, equivalent to --contrast -1')
     parser.add_argument('--output',
                         '-o',
                         type=str,
@@ -132,6 +137,9 @@ def process_bmp():
         
         if args.binary:
             bmp.imageData = imageBinary(bmp)
+        
+        if args.invert:
+            bmp.imageData = imageInvert(bmp)
 
         if args.output:
             outputFile = args.output
