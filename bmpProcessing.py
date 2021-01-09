@@ -9,6 +9,7 @@ from processors.imageRotate import imageRotate
 from processors.imageScale import imageScale
 from processors.imageContrast import imageContrast
 from processors.imageGrayscale import imageGrayscale
+from processors.imageBinary import imageBinary
 from middlewares.length import required_length
 from formats.bmp import BMP
 from formats.png import PNG
@@ -64,6 +65,10 @@ def process_bmp():
                         '-gs',
                         action='store_true',
                         help='to grayscale image')
+    parser.add_argument('--binary',
+                        '-b',
+                        action='store_true',
+                        help='to binary image')
     parser.add_argument('--output',
                         '-o',
                         type=str,
@@ -97,9 +102,10 @@ def process_bmp():
                 args.rotate,
                 args.scale,
                 args.contrast,
-                args.grayscale
+                args.grayscale,
+                args.binary
             )):
-                parser.error('--rotate/--scale/--contrast/--grayscale and --output must be given together')
+                parser.error('--rotate/--scale/--contrast/--grayscale/--binary and --output must be given together')
         
         if args.rotate:
             degree = args.rotate
@@ -123,6 +129,9 @@ def process_bmp():
         
         if args.grayscale:
             bmp.imageData = imageGrayscale(bmp)
+        
+        if args.binary:
+            bmp.imageData = imageBinary(bmp)
 
         if args.output:
             outputFile = args.output
