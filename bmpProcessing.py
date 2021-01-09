@@ -11,6 +11,7 @@ from processors.imageContrast import imageContrast
 from processors.imageGrayscale import imageGrayscale
 from processors.imageBinary import imageBinary
 from processors.imageInvert import imageInvert
+from processors.imageChannels import toChannel
 from middlewares.length import required_length
 from formats.bmp import BMP
 from formats.png import PNG
@@ -74,6 +75,11 @@ def process_bmp():
                         '-i',
                         action='store_true',
                         help='to inverted image, equivalent to --contrast -1')
+    parser.add_argument('--channel',
+                        type=str,
+                        choices=['blue', 'green', 'red'],
+                        metavar='<channel>',
+                        help='to the specified channel')
     parser.add_argument('--output',
                         '-o',
                         type=str,
@@ -102,13 +108,14 @@ def process_bmp():
             printHeader(bmp)
             sys.exit(0)
         
-        if (args.rotate or args.scale or args.contrast or args.grayscale):
+        if (args.rotate or args.scale or args.contrast or args.grayscale or args.binary or args.channel):
             if not hp.atLeastOne(args.output, (
                 args.rotate,
                 args.scale,
                 args.contrast,
                 args.grayscale,
-                args.binary
+                args.binary,
+                args.channel
             )):
                 parser.error('--rotate/--scale/--contrast/--grayscale/--binary and --output must be given together')
         
@@ -140,6 +147,10 @@ def process_bmp():
         
         if args.invert:
             bmp.imageData = imageInvert(bmp)
+        
+        if args.channel:
+            channel = args.channel
+            bmp.imageData = toChannel(bmp, channel)
 
         if args.output:
             outputFile = args.output
