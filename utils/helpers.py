@@ -98,7 +98,6 @@ def saveBMP(bmp, imageData, outputFile):
             f.write(npToArray(imageData[i][j]))
 
     f.close()
-    print(f'Succesfully saved into {outputFile}')
 
 def atLeastOne(filterVar, filterList):
     return len(
