@@ -3,15 +3,8 @@
 
 import argparse, os, sys
 from utils import helpers as hp
-from processors.printHeader import printHeader
-from processors.printPixel import printPixel
-from processors.imageRotate import imageRotate
-from processors.imageScale import imageScale
-from processors.imageContrast import imageContrast
-from processors.imageGrayscale import imageGrayscale
-from processors.imageBinary import imageBinary
-from processors.imageInvert import imageInvert
-from processors.imageChannels import toChannel
+from processors import imageBinary, imageChannels, imageContrast, imageGrayscale
+from processors import imageInvert, imageRotate, imageScale, printHeader, printPixel, toChannel
 from middlewares.length import required_length
 from formats.bmp import BMP
 from formats.png import PNG
@@ -79,7 +72,12 @@ def process_bmp():
                         type=str,
                         choices=['blue', 'green', 'red'],
                         metavar='<channel>',
+                        nargs='+',
+                        action=required_length(1, 2),
                         help='to the specified channel')
+    parser.add_argument('--histogram',
+                        action='store_true',
+                        help='print histogram associated')
     parser.add_argument('--output',
                         '-o',
                         type=str,
@@ -87,6 +85,7 @@ def process_bmp():
                         help='image output file')
 
     args = parser.parse_args()
+    print(args)
 
     filename = ""
     if args.bmp:
@@ -149,8 +148,12 @@ def process_bmp():
             bmp.imageData = imageInvert(bmp)
         
         if args.channel:
-            channel = args.channel
-            bmp.imageData = toChannel(bmp, channel)
+            if len(args.channel) == 2:
+                c1, c2 = args.channel
+                bmp.imageData = toChannel(bmp, [c1, c2])
+            else:
+                channel = args.channel[0]
+                bmp.imageData = toChannel(bmp, channel)
 
         if args.output:
             outputFile = args.output
