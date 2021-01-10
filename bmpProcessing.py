@@ -3,7 +3,7 @@
 
 import argparse, os, sys
 from utils import helpers as hp
-from processors import imageBinary, imageChannels, imageContrast, imageGrayscale
+from processors import imageBinary, imageChannels, imageContrast, imageGrayscale, printHistogram
 from processors import imageInvert, imageRotate, imageScale, printHeader, printPixel, toChannel
 from middlewares.length import required_length
 from formats.bmp import BMP
@@ -37,6 +37,10 @@ def process_bmp():
                        nargs=2,
                        metavar=('<width>', '<height>'),
                        help='pixel to print')
+    group.add_argument('--histogram',
+                       action='store_true',
+                       help='print histogram associated')
+
 
     parser.add_argument('--rotate',
                         '-r',
@@ -75,9 +79,6 @@ def process_bmp():
                         nargs='+',
                         action=required_length(1, 2),
                         help='to the specified channel')
-    parser.add_argument('--histogram',
-                        action='store_true',
-                        help='print histogram associated')
     parser.add_argument('--output',
                         '-o',
                         type=str,
@@ -85,7 +86,6 @@ def process_bmp():
                         help='image output file')
 
     args = parser.parse_args()
-    print(args)
 
     filename = ""
     if args.bmp:
@@ -105,6 +105,10 @@ def process_bmp():
         
         elif args.header:
             printHeader(bmp)
+            sys.exit(0)
+        
+        elif args.histogram:
+            printHistogram(bmp)
             sys.exit(0)
         
         if (args.rotate or args.scale or args.contrast or args.grayscale or args.binary or args.channel):
