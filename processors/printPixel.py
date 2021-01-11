@@ -5,6 +5,17 @@ import sys
 from utils import helpers as hp
 
 def printPixel(bmp, width, height):
+    """
+        Print the pixel color defined by the width and height
+
+        Parameters
+        ----------
+        bmp: BMP
+
+        width: int
+
+        height: int
+    """
     fullWidth = int(hp.readLittleEndian(bmp.width))
     fullHeight = int(hp.readLittleEndian(bmp.height))
 

@@ -35,12 +35,35 @@ def readLittleEndian(l):
 
 # [ 255. 255. 255. ]
 def npToArray(ndarray):
+    """
+        Convert numpy array to bytearray
+
+        Parameters
+        ----------
+        ndarray: np.ndarray
+
+        Return
+        ------
+        bytearray
+    """
+
     octets = []
     for i in range(len(ndarray)):
         octets.append(int(ndarray[i]))
     return bytearray(octets)
 
 def saveBMP(bmp, imageData, outputFile):
+    """
+        Save matrix of a BMP to a bmp file by rewriting the header (v3).
+
+        Parameters
+        ----------
+        bmp: BMP
+
+        imageData: np.ndarray((h, w, 3))
+
+        outputFile: str
+    """
     f = open(outputFile, 'wb')
 
     signature = bytearray(bmp.signature)
@@ -100,6 +123,20 @@ def saveBMP(bmp, imageData, outputFile):
     f.close()
 
 def atLeastOne(filterVar, filterList):
+    """
+        Check if one of the filterList is set and if filterVar is set.
+
+        Parameters
+        ----------
+        filterVar: any
+
+        filterList: list
+
+        Returns
+        -------
+        bool
+    """
+    
     return len(
         list(
             filter(lambda x: x != False and x != None , [x and filterVar for x in filterList])

@@ -2,6 +2,12 @@ import os, numpy as np
 from utils import helpers as hp
 
 class PNG:
+    """
+        PNG model class defining the PNG structure and storing data from a PNG file.
+        A PNG is a file which contains a signature that must start with the ID 89 then PNG then mandatory bytes.
+        Then a list of 1..N chunks defined depending on their type.
+    """
+
     filename = ""
     ID = 0
     signature = ""
@@ -9,6 +15,11 @@ class PNG:
     chunks = {}
 
     def __init__(self, filename:str):
+        """
+            Constructor of the PNG class. Not completely implemented, 
+            we read the chunks and we assigns depending on the type of the chunk.
+        """
+
         f = open(filename, 'rb')
         octets = []
         i = 1

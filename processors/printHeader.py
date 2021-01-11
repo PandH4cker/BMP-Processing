@@ -4,6 +4,14 @@
 from utils import helpers as hp
 
 def printHeader(bmp):
+      """
+            Print header of a bmp file
+
+            Parameters
+            ----------
+            bmp: BMP
+      """
+      # Parsing BMP signature
       for i in range(len(bmp.signature)):
             print(chr(bmp.signature[i]), " dec=", bmp.signature[i], "hexa=", hex(bmp.signature[i])[2:].upper())
 

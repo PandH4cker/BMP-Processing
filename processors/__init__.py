@@ -1,3 +1,4 @@
+# Package definition
 __all__ = ['imageBinary', 'imageChannels', 'imageContrast', 'imageGrayscale', 
            'imageInvert', 'imageRotate', 'imageScale', 'printHeader', 'printPixel', 'printHistogram']
 from processors.imageBinary import imageBinary

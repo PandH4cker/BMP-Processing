@@ -10,87 +10,95 @@ from formats.bmp import BMP
 from formats.png import PNG
 import colorama
 
+# Initialization of colorama
 colorama.init(autoreset=True)
 
-def process_bmp():
-    """Process a given BMP Image in parameter
-
+def imageProcessing():
+    """
+        Process a given image in parameter (BMP or PNG)
     """
 
-    # Parsing des arguments
-    parser = argparse.ArgumentParser(description='BMP reader')
-
-    formatParser = parser.add_mutually_exclusive_group(required=True)
+    # Parser initialization
+    parser = argparse.ArgumentParser(description=colourers.toCyan('Image processor for reading/writing images into BMP/PNG formats and applying transformations on it.'))
+    
+    # Formats Parser
+    group = parser.add_argument_group(colourers.toGreen('formats'))
+    formatParser = group.add_mutually_exclusive_group(required=True)
     formatParser.add_argument('--bmp',
                                type=str,
-                               metavar='<bmp file name>', 
-                               help='image file to parse')
+                               metavar=colourers.toRed('<bmp file name>'), 
+                               help=colourers.toMagenta('bmp file to parse'))
     formatParser.add_argument('--png',
                               type=str,
-                              metavar='<png file name>',
-                              help='image file to parse')
+                              metavar=colourers.toRed('<png file name>'),
+                              help=colourers.toMagenta('png file to parse'))
 
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('--header',
-                       help='print the file format header',
+    # Printers Parser
+    group = parser.add_argument_group(colourers.toYellow('printers'))
+    printers = group.add_mutually_exclusive_group()
+    printers.add_argument('--header',
+                       help=colourers.toMagenta('print the file format header'),
                        action='store_true')
-    group.add_argument('--print-color',
+    printers.add_argument('--print-color',
                        '-pc',
                        type=int,
                        nargs=2,
-                       metavar=('<width>', '<height>'),
-                       help='pixel to print')
-    group.add_argument('--histogram',
+                       metavar=(colourers.toRed('<width>'), colourers.toRed('<height>')),
+                       help=colourers.toMagenta('pixel to print'))
+    printers.add_argument('--histogram',
                        action='store_true',
-                       help='print histogram associated')
-    group.add_argument('--output',
+                       help=colourers.toMagenta('print histogram associated'))
+    printers.add_argument('--output',
                         '-o',
                         type=str,
-                        metavar='<output file>',
-                        help='image output file')
+                        metavar=colourers.toRed('<output file>'),
+                        help=colourers.toMagenta('image output file'))
 
-
-    parser.add_argument('--rotate',
+    # Transformers Parser
+    transformers = parser.add_argument_group(colourers.toBlue('transformers'))
+    transformers.add_argument('--rotate',
                         '-r',
                         type=int,
                         choices=[90, 180, 270],
-                        metavar='<degree of rotation>',
-                        help='rotate the image')
-    parser.add_argument('--scale',
+                        metavar=colourers.toRed('<degree of rotation>'),
+                        help=colourers.toMagenta('rotate the image'))
+    transformers.add_argument('--scale',
                         '-s',
                         type=int,
                         nargs='+',
                         action=required_length(1, 2),
-                        metavar=('<scaleRatio> | [<width>', '<height>'),
-                        help='scale/shrink the image')
-    parser.add_argument('--contrast',
+                        metavar=(colourers.toRed('<scaleRatio> | [<width>'), colourers.toRed('<height>')),
+                        help=colourers.toMagenta('scale/shrink the image'))
+    transformers.add_argument('--contrast',
                         '-c',
                         type=float,
-                        metavar='<contrast factor>',
-                        help='apply a factor contrast')
-    parser.add_argument('--grayscale',
+                        metavar=colourers.toRed('<contrast factor>'),
+                        help=colourers.toMagenta('apply a factor contrast'))
+    transformers.add_argument('--grayscale',
                         '-gs',
                         action='store_true',
-                        help='to grayscale image')
-    parser.add_argument('--binary',
+                        help=colourers.toMagenta('to grayscale image'))
+    transformers.add_argument('--binary',
                         '-b',
                         action='store_true',
-                        help='to binary image')
-    parser.add_argument('--invert',
+                        help=colourers.toMagenta('to binary image'))
+    transformers.add_argument('--invert',
                         '-i',
                         action='store_true',
-                        help='to inverted image, equivalent to --contrast -1')
-    parser.add_argument('--channel',
+                        help=colourers.toMagenta('to inverted image, equivalent to --contrast -1'))
+    transformers.add_argument('--channel',
                         type=str,
                         choices=['blue', 'green', 'red'],
-                        metavar='<channel>',
+                        metavar=colourers.toRed('<channel>'),
                         nargs='+',
                         action=required_length(1, 2),
-                        help='to the specified channel')
+                        help=colourers.toMagenta('to the specified channel'))
 
+    # Args parsing
     args = parser.parse_args()
 
     filename = ""
+    # BMP Block
     if args.bmp:
         filename = args.bmp
 
@@ -182,6 +190,8 @@ def process_bmp():
             sys.exit(0)
         
         parser.error('Give at least one more argument')
+        
+    # PNG Block
     else:
         filename = args.png
 
@@ -192,6 +202,7 @@ def process_bmp():
         
         png = PNG(filename)
 
+# Main function
 if __name__ == '__main__':
-    process_bmp()
+    imageProcessing()
     sys.exit(0)

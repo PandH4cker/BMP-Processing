@@ -14,4 +14,19 @@ def scale(image, nR, nC):
     ]
 
 def imageScale(bmp, nR, nC):
+    """
+        Scaling/Shriking the image by specifying rows and cols
+
+        Parameters
+        ----------
+        bmp: BMP
+
+        nR: int
+
+        nC: int
+
+        Returns
+        -------
+        np.ndarray((h, w, 3))
+    """
     return np.array(scale(bmp.imageData, nR, nC)).astype(float)

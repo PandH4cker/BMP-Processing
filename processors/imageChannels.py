@@ -1,5 +1,9 @@
 import numpy as np
 
+"""
+    Defining channels transformations
+"""
+
 def blueChannel(pixel):
     return (pixel[0], 0, 0)
 
@@ -18,7 +22,20 @@ def redGreenChannel(pixel):
 def greenBlueChannel(pixel):
     return (pixel[0], pixel[1], 0)
 
-def toChannel(bmp, channel):    
+def toChannel(bmp, channel):
+    """
+        Keeping only channel(s) given using methods defined above
+
+        Parameters
+        ----------
+        bmp: BMP
+
+        channel: str | list
+
+        Returns
+        -------
+        np.ndarray((h, w, 3))
+    """   
     for i in range(len(bmp.imageData)):
         for j in range(len(bmp.imageData[0])):
             if (channel == 'blue'):

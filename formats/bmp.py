@@ -2,6 +2,23 @@ import os, numpy as np
 from utils import helpers as hp
 
 class BMP:
+    """
+        BMP model class defining the BMP structure and storing data from a BMP file.
+        A BMP is a file which contains a signature that can be one of [BM, BA, CI, CP, IC, PT].
+        It has a total size which is the 54 first bytes + the image data size.
+        It can be referenced by an application image like Photoshop, Windows Paint or whatever.
+        The starting offset defines where the image data starts. On a v3 it's at the 54-th bytes.
+        The header size should be 40 bytes for a v3 but it can differ depending on which version of bmp is used.
+        It has a width and a height and a number of planes.
+        The bpp is the Bit per Pixel, it is very important for image reader to assign colors 
+        to the image when reading the image data.
+        The compression type can be 0=None, 1=RLE-8, 2=RLE-4.
+        There is the image size which defines the size of the image data matrix.
+        There are horizontal and vertical resolutions defined in pixels/meter
+        The number of colors and the number of important colors allow us to determine if a palette has been used.
+        The image data is the matrix of pixels
+    """
+
     filename = ""
     signature = ""
     totalSize = 0
@@ -21,6 +38,12 @@ class BMP:
     imageData = 0
 
     def __init__(self, filename:str):
+        """
+            Constructor of the BMP class. Read the first 54 bytes and assigns them to the variables.
+            Then assigns the matrix with the bytes depending on the width and the height.
+        """
+
+        # Reading the first 54 bytes
         f = open(filename, 'rb')
         octets = []
         i = 1
@@ -29,6 +52,7 @@ class BMP:
             octets.append(ord(octet))
             i += 1
         
+        # Assigning the bytes
         signature = [octets[0], octets[1]]
         totalSize = [octets[2], octets[3], octets[4], octets[5]]
         appImage = [octets[6], octets[7], octets[8], octets[9]]
@@ -65,6 +89,7 @@ class BMP:
         height = int(hp.readLittleEndian(self.height))
         width = int(hp.readLittleEndian(self.width))
         
+        # Assigning the matrix of pixels (Adding 3 bytes per iterations)
         self.imageData = np.zeros((height, width, 3))
         for i in  range(height):
             for j in range(width):
