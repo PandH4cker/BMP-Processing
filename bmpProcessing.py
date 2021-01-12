@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import argparse, os, sys
+import argparse, os, sys, numpy as np, colorama
 from utils import helpers as hp, colourers
 from processors import imageBinary, imageChannels, imageContrast, imageGrayscale, printHistogram
 from processors import imageInvert, imageRotate, imageScale, printHeader, printPixel, toChannel
+from processors import cannyEdgeDetection
 from middlewares.length import required_length
 from formats.bmp import BMP
 from formats.png import PNG
-import colorama
 
 # Initialization of colorama
 colorama.init(autoreset=True)
@@ -93,6 +93,12 @@ def imageProcessing():
                         nargs='+',
                         action=required_length(1, 2),
                         help=colourers.toMagenta('to the specified channel'))
+    
+    filters = parser.add_argument_group(colourers.toCyan('filters'))
+    filters.add_argument('--edge-detection',
+                         '-ed',
+                         action='store_true',
+                         help=colourers.toMagenta('perform edge detection'))
 
     # Args parsing
     args = parser.parse_args()
@@ -125,16 +131,18 @@ def imageProcessing():
             printHistogram(bmp)
             sys.exit(0)
         
-        if (args.rotate or args.scale or args.contrast or args.grayscale or args.binary or args.channel):
+        if (args.rotate or args.scale or args.contrast or args.grayscale or 
+            args.binary or args.channel or args.edge_detection):
             if not hp.atLeastOne(args.output, (
                 args.rotate,
                 args.scale,
                 args.contrast,
                 args.grayscale,
                 args.binary,
-                args.channel
+                args.channel,
+                args.edge_detection
             )):
-                parser.error('--rotate/--scale/--contrast/--grayscale/--binary and --output must be given together')
+                parser.error('--rotate/--scale/--contrast/--grayscale/--binary/--channel/--edge-detection and --output must be given together')
         
         if args.rotate:
             degree = args.rotate
@@ -182,6 +190,11 @@ def imageProcessing():
                 channel = args.channel[0]
                 colourers.info(f'Keeping only {channel} channel of the image')
                 bmp.imageData = toChannel(bmp, channel)
+        
+        if args.edge_detection:
+            colourers.info(f'Performing edge detection')
+            bmp.imageData = cannyEdgeDetection(bmp.imageData, sigma=0.33, kernelSize=5, 
+                                               lowThreshold=0.09, highThreshold=0.17, weakPix=100)
 
         if args.output:
             outputFile = args.output
