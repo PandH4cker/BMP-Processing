@@ -1,4 +1,4 @@
-from utils.convolution import conv2D
+from utils import conv2D
 import numpy as np
 
 def increasedEdgeEnhancement(image):

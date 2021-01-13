@@ -1,6 +1,5 @@
 import numpy as np
-from utils.convolution import conv2D
-from utils import colourers
+from utils import colourers, conv2D
 
 def gaussianKernel(size, sigma=1):
     colourers.info(f'Creating gaussian kernel of size {size} with sigma of {sigma}')

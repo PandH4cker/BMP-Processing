@@ -3,13 +3,9 @@
 
 import argparse, os, sys, numpy as np, colorama
 from utils import helpers as hp, colourers
-from processors import imageBinary, imageChannels, imageContrast, imageGrayscale, printHistogram
-from processors import imageInvert, imageRotate, imageScale, printHeader, printPixel, toChannel
-from processors import cannyEdgeDetection, increasedEdgeEnhancement
-from processors.colorRetriever import toRGB
-from middlewares.length import required_length
-from formats.bmp import BMP
-from formats.png import PNG
+from processors import printers as Printers, transformers as Transformers, filters as Filters
+from middlewares import required_length
+from formats import BMP, PNG
 
 # Initialization of colorama
 colorama.init(autoreset=True)
@@ -126,17 +122,17 @@ def imageProcessing():
         if args.print_color:
             width, height = args.print_color
             colourers.info(f'Printing pixel color of ({width}, {height})')
-            printPixel(bmp, width, height)
+            Printers.printPixel(bmp, width, height)
             sys.exit(0)
         
         elif args.header:
             colourers.info(f'Printing BMP header of {bmp.filename}')
-            printHeader(bmp)
+            Printers.printHeader(bmp)
             sys.exit(0)
         
         elif args.histogram:
             colourers.info(f'Printing color histogram of {bmp.filename}')
-            printHistogram(bmp)
+            Printers.printHistogram(bmp)
             sys.exit(0)
         
         if (args.rotate or args.scale or args.contrast or args.grayscale or 
@@ -158,13 +154,13 @@ def imageProcessing():
         if args.rotate:
             degree = args.rotate
             colourers.info(f'Rotating image to {degree} degree')
-            bmp.imageData = imageRotate(bmp, degree)
+            bmp.imageData = Transformers.rotate(bmp, degree)
 
         if args.scale:
             if len(args.scale) == 2:
                 width, height = args.scale
                 colourers.info(f'Scaling image to {width}x{height} pixels')
-                bmp.imageData = imageScale(bmp, height, width)
+                bmp.imageData = Transformers.scale(bmp, height, width)
             else:
                 scaleRatio = args.scale[0]
 
@@ -173,48 +169,46 @@ def imageProcessing():
                 height = int(hp.readLittleEndian(bmp.height))
                 width = int(hp.readLittleEndian(bmp.width))
 
-                bmp.imageData = imageScale(bmp, height * scaleRatio, width * scaleRatio)
+                bmp.imageData = Transformers.scale(bmp, height * scaleRatio, width * scaleRatio)
         
         if args.contrast:
             factor = args.contrast
             colourers.info(f'Applying a factor contrast of {factor}')
-            bmp.imageData = imageContrast(bmp, factor)
+            bmp.imageData = Transformers.contrast(bmp, factor)
         
         if args.grayscale:
             colourers.info(f'Applying grayscale mask to the image')
-            bmp.imageData = imageGrayscale(bmp)
+            bmp.imageData = Transformers.grayscale(bmp)
         
         if args.binary:
             colourers.info(f'Applying binary mask to the image')
-            bmp.imageData = imageBinary(bmp)
+            bmp.imageData = Transformers.binary(bmp)
         
         if args.invert:
             colourers.info(f'Inverting image colours')
-            bmp.imageData = imageInvert(bmp)
+            bmp.imageData = Transformers.invert(bmp)
         
         if args.channel:
             if len(args.channel) == 2:
                 c1, c2 = args.channel
                 colourers.info(f'Keeping only {c1} and {c2} channels of the image')
-                bmp.imageData = toChannel(bmp, [c1, c2])
+                bmp.imageData = Transformers.toChannel(bmp, [c1, c2])
             else:
                 channel = args.channel[0]
                 colourers.info(f'Keeping only {channel} channel of the image')
-                bmp.imageData = toChannel(bmp, channel)
+                bmp.imageData = Transformers.toChannel(bmp, channel)
         
         if args.edge_enhancement:
             colourers.info(f'Applying increased edge enhancement filter')
-            bmp.imageData = increasedEdgeEnhancement(bmp.imageData)
-
+            bmp.imageData = Filters.iee(bmp.imageData)
 
         if args.edge_detection:
             colourers.info(f'Performing edge detection')
-            bmp.imageData = cannyEdgeDetection(bmp.imageData, sigma=0.33, kernelSize=9, 
-                                               lowThreshold=0.07843137, highThreshold=0.25, weakPix=50)
+            bmp.imageData = Filters.ced(bmp.imageData, sigma=0.33, kernelSize=9, lowThreshold=0.07843137, highThreshold=0.25, weakPix=50)
         
         if args.retrieve_color:
             colourers.info(f'Retrieving color')
-            bmp.imageData = toRGB(bmp.imageData)
+            bmp.imageData = Filters.toRGB(bmp.imageData)
                     
         if args.output:
             outputFile = args.output
