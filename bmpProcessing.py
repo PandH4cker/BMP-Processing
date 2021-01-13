@@ -5,7 +5,8 @@ import argparse, os, sys, numpy as np, colorama
 from utils import helpers as hp, colourers
 from processors import imageBinary, imageChannels, imageContrast, imageGrayscale, printHistogram
 from processors import imageInvert, imageRotate, imageScale, printHeader, printPixel, toChannel
-from processors import cannyEdgeDetection
+from processors import cannyEdgeDetection, increasedEdgeEnhancement
+from processors.colorRetriever import toRGB
 from middlewares.length import required_length
 from formats.bmp import BMP
 from formats.png import PNG
@@ -98,8 +99,15 @@ def imageProcessing():
     filters.add_argument('--edge-detection',
                          '-ed',
                          action='store_true',
-                         help=colourers.toMagenta('perform edge detection'))
-
+                         help=colourers.toMagenta('perform a Canny Filter for Edge Detection'))
+    filters.add_argument('--retrieve-color',
+                         '-rv',
+                         action='store_true',
+                         help=colourers.toMagenta('retrieve the colors of a grayscale image'))
+    filters.add_argument('--edge-enhancement',
+                         '-ee',
+                         action='store_true', 
+                         help=colourers.toMagenta('applying increased edge enhancement filter'))
     # Args parsing
     args = parser.parse_args()
 
@@ -132,7 +140,8 @@ def imageProcessing():
             sys.exit(0)
         
         if (args.rotate or args.scale or args.contrast or args.grayscale or 
-            args.binary or args.channel or args.edge_detection):
+            args.binary or args.channel or args.edge_detection or args.retrieve_color or
+            args.edge_enhancement):
             if not hp.atLeastOne(args.output, (
                 args.rotate,
                 args.scale,
@@ -140,9 +149,11 @@ def imageProcessing():
                 args.grayscale,
                 args.binary,
                 args.channel,
-                args.edge_detection
+                args.edge_detection,
+                args.retrieve_color,
+                args.edge_enhancement
             )):
-                parser.error('--rotate/--scale/--contrast/--grayscale/--binary/--channel/--edge-detection and --output must be given together')
+                parser.error('--rotate/--scale/--contrast/--grayscale/--binary/--channel/--edge-detection/--retrieve-color/--edge-enhancement and --output must be given together')
         
         if args.rotate:
             degree = args.rotate
@@ -191,11 +202,20 @@ def imageProcessing():
                 colourers.info(f'Keeping only {channel} channel of the image')
                 bmp.imageData = toChannel(bmp, channel)
         
+        if args.edge_enhancement:
+            colourers.info(f'Applying increased edge enhancement filter')
+            bmp.imageData = increasedEdgeEnhancement(bmp.imageData)
+
+
         if args.edge_detection:
             colourers.info(f'Performing edge detection')
-            bmp.imageData = cannyEdgeDetection(bmp.imageData, sigma=0.33, kernelSize=5, 
-                                               lowThreshold=0.09, highThreshold=0.17, weakPix=100)
-
+            bmp.imageData = cannyEdgeDetection(bmp.imageData, sigma=0.33, kernelSize=9, 
+                                               lowThreshold=0.07843137, highThreshold=0.25, weakPix=50)
+        
+        if args.retrieve_color:
+            colourers.info(f'Retrieving color')
+            bmp.imageData = toRGB(bmp.imageData)
+                    
         if args.output:
             outputFile = args.output
             hp.saveBMP(bmp, bmp.imageData, outputFile)
