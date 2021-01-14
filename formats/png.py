@@ -4,7 +4,9 @@ from utils import helpers as hp
 class PNG:
     """
         PNG model class defining the PNG structure and storing data from a PNG file.
+
         A PNG is a file which contains a signature that must start with the ID 89 then PNG then mandatory bytes.
+        
         Then a list of 1..N chunks defined depending on their type.
     """
 

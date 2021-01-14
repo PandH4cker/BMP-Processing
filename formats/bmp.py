@@ -4,19 +4,31 @@ from utils import helpers as hp
 class BMP:
     """
         BMP model class defining the BMP structure and storing data from a BMP file.
+
         A BMP is a file which contains a signature that can be one of [BM, BA, CI, CP, IC, PT].
+
         It has a total size which is the 54 first bytes + the image data size.
+
         It can be referenced by an application image like Photoshop, Windows Paint or whatever.
+
         The starting offset defines where the image data starts. On a v3 it's at the 54-th bytes.
+
         The header size should be 40 bytes for a v3 but it can differ depending on which version of bmp is used.
+
         It has a width and a height and a number of planes.
+
         The bpp is the Bit per Pixel, it is very important for image reader to assign colors 
         to the image when reading the image data.
+
         The compression type can be 0=None, 1=RLE-8, 2=RLE-4.
+
         There is the image size which defines the size of the image data matrix.
-        There are horizontal and vertical resolutions defined in pixels/meter
+
+        There are horizontal and vertical resolutions defined in pixels/meter.
+
         The number of colors and the number of important colors allow us to determine if a palette has been used.
-        The image data is the matrix of pixels
+
+        The image data is the matrix of pixels.
     """
 
     filename = ""
