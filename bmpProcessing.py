@@ -109,6 +109,10 @@ def imageProcessing():
                          choices=['simple', 'more', 'average', 'gaussian', 'motion'],
                          metavar=colourers.toRed('<type of blur>'),
                          help=colourers.toMagenta('perform the selected blur'))
+    filters.add_argument('--emboss',
+                         action='store_true',
+                         help=colourers.toMagenta('perform an embossing filter'))
+
     # Args parsing
     args = parser.parse_args()
 
@@ -142,7 +146,7 @@ def imageProcessing():
         
         if (args.rotate or args.scale or args.contrast or args.grayscale or 
             args.binary or args.channel or args.edge_detection or args.retrieve_color or
-            args.edge_enhancement or args.blur):
+            args.edge_enhancement or args.blur or args.emboss):
             if not hp.atLeastOne(args.output, (
                 args.rotate,
                 args.scale,
@@ -153,9 +157,10 @@ def imageProcessing():
                 args.edge_detection,
                 args.retrieve_color,
                 args.edge_enhancement,
-                args.blur
+                args.blur,
+                args.emboss
             )):
-                parser.error('--rotate/--scale/--contrast/--grayscale/--binary/--channel/--edge-detection/--retrieve-color/--edge-enhancement/--blur and --output must be given together')
+                parser.error('--rotate/--scale/--contrast/--grayscale/--binary/--channel/--edge-detection/--retrieve-color/--edge-enhancement/--blur/--emboss and --output must be given together')
         
         if args.rotate:
             degree = args.rotate
@@ -214,12 +219,16 @@ def imageProcessing():
         
         if args.retrieve_color:
             colourers.info(f'Retrieving color')
-            bmp.imageData = Filters.toRGB(bmp.imageData)
+            bmp.imageData = Filters.retrieveColor(bmp.imageData)
         
         if args.blur:
             blurType = args.blur
             blurFunc = Filters.blur.switcher.get(blurType)
             bmp.imageData = blurFunc(bmp.imageData)
+        
+        if args.emboss:
+            colourers.info(f'Performing emboss filter')
+            bmp.imageData = Filters.emboss(bmp.imageData)
                     
         if args.output:
             outputFile = args.output
