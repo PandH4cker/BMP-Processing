@@ -112,6 +112,10 @@ def imageProcessing():
     filters.add_argument('--emboss',
                          action='store_true',
                          help=colourers.toMagenta('perform an embossing filter'))
+    filters.add_argument('--overlap',
+                         type=str,
+                         metavar=colourers.toRed('<image to overlap>'),
+                         help=colourers.toMagenta('overlap an image given on the selected image'))
 
     # Args parsing
     args = parser.parse_args()
@@ -146,7 +150,7 @@ def imageProcessing():
         
         if (args.rotate or args.scale or args.contrast or args.grayscale or 
             args.binary or args.channel or args.edge_detection or args.retrieve_color or
-            args.edge_enhancement or args.blur or args.emboss):
+            args.edge_enhancement or args.blur or args.emboss or args.overlap):
             if not hp.atLeastOne(args.output, (
                 args.rotate,
                 args.scale,
@@ -158,9 +162,10 @@ def imageProcessing():
                 args.retrieve_color,
                 args.edge_enhancement,
                 args.blur,
-                args.emboss
+                args.emboss,
+                args.overlap
             )):
-                parser.error('--rotate/--scale/--contrast/--grayscale/--binary/--channel/--edge-detection/--retrieve-color/--edge-enhancement/--blur/--emboss and --output must be given together')
+                parser.error('--rotate/--scale/--contrast/--grayscale/--binary/--channel/--edge-detection/--retrieve-color/--edge-enhancement/--blur/--emboss/--overlap and --output must be given together')
         
         if args.rotate:
             degree = args.rotate
@@ -223,13 +228,19 @@ def imageProcessing():
         
         if args.blur:
             blurType = args.blur
+            colourers.info(f'Performing a {blurType} blur')
             blurFunc = Filters.blur.switcher.get(blurType)
             bmp.imageData = blurFunc(bmp.imageData)
         
         if args.emboss:
             colourers.info(f'Performing emboss filter')
             bmp.imageData = Filters.emboss(bmp.imageData)
-                    
+        
+        if args.overlap:
+            overlapper = BMP(args.overlap)
+            colourers.info(f'Performing an overlapping between {bmp.filename} and {overlapper.filename}')
+            bmp.imageData = Filters.overlap(bmp.imageData, overlapper.imageData)
+       
         if args.output:
             outputFile = args.output
             hp.saveBMP(bmp, bmp.imageData, outputFile)
