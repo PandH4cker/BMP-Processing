@@ -53,6 +53,9 @@ def imageProcessing():
 
     # Transformers Parser
     transformers = parser.add_argument_group(colourers.toBlue('transformers'))
+    transformers.add_argument('--half',
+                              action='store_true',
+                              help='applying the filter on one half of the image')
     transformers.add_argument('--rotate',
                         '-r',
                         type=int,
@@ -91,6 +94,7 @@ def imageProcessing():
                         action=required_length(1, 2),
                         help=colourers.toMagenta('to the specified channel'))
     
+    # Filters Parser
     filters = parser.add_argument_group(colourers.toCyan('filters'))
     filters.add_argument('--edge-detection',
                          '-ed',
@@ -114,6 +118,7 @@ def imageProcessing():
                          help=colourers.toMagenta('perform an embossing filter'))
     filters.add_argument('--overlap',
                          type=str,
+                         nargs='+',
                          metavar=colourers.toRed('<image to overlap>'),
                          help=colourers.toMagenta('overlap an image given on the selected image'))
 
@@ -131,6 +136,7 @@ def imageProcessing():
         colourers.success('Success Opening {}...'.format(filename))
 
         bmp = BMP(filename)
+        half = args.half
 
         if args.print_color:
             width, height = args.print_color
@@ -194,25 +200,25 @@ def imageProcessing():
         
         if args.grayscale:
             colourers.info(f'Applying grayscale mask to the image')
-            bmp.imageData = Transformers.grayscale(bmp)
+            bmp.imageData = Transformers.grayscale(bmp, half)
         
         if args.binary:
             colourers.info(f'Applying binary mask to the image')
-            bmp.imageData = Transformers.binary(bmp)
+            bmp.imageData = Transformers.binary(bmp, half)
         
         if args.invert:
             colourers.info(f'Inverting image colours')
-            bmp.imageData = Transformers.invert(bmp)
+            bmp.imageData = Transformers.invert(bmp, half)
         
         if args.channel:
             if len(args.channel) == 2:
                 c1, c2 = args.channel
                 colourers.info(f'Keeping only {c1} and {c2} channels of the image')
-                bmp.imageData = Transformers.toChannel(bmp, [c1, c2])
+                bmp.imageData = Transformers.toChannel(bmp, [c1, c2], half)
             else:
                 channel = args.channel[0]
                 colourers.info(f'Keeping only {channel} channel of the image')
-                bmp.imageData = Transformers.toChannel(bmp, channel)
+                bmp.imageData = Transformers.toChannel(bmp, channel, half)
         
         if args.edge_enhancement:
             colourers.info(f'Applying increased edge enhancement filter')
@@ -237,9 +243,11 @@ def imageProcessing():
             bmp.imageData = Filters.emboss(bmp.imageData)
         
         if args.overlap:
-            overlapper = BMP(args.overlap)
-            colourers.info(f'Performing an overlapping between {bmp.filename} and {overlapper.filename}')
-            bmp.imageData = Filters.overlap(bmp.imageData, overlapper.imageData)
+            overlappers = []
+            for ov in args.overlap:
+                overlappers.append(BMP(ov).imageData)
+            colourers.info(f'Performing an overlapping between {bmp.filename} and {args.overlap}')
+            bmp.imageData = Filters.overlap(bmp.imageData, overlappers)
        
         if args.output:
             outputFile = args.output

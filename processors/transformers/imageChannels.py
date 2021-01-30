@@ -22,7 +22,7 @@ def redGreenChannel(pixel):
 def greenBlueChannel(pixel):
     return (pixel[0], pixel[1], 0)
 
-def toChannel(bmp, channel):
+def toChannel(bmp, channel, half=False):
     """
         Keeping only channel(s) given using methods defined above
 
@@ -36,8 +36,11 @@ def toChannel(bmp, channel):
         -------
         np.ndarray((h, w, 3))
     """   
+    width = len(bmp.imageData[0])
+    if half:
+        width = int(width/2)
     for i in range(len(bmp.imageData)):
-        for j in range(len(bmp.imageData[0])):
+        for j in range(width):
             if (channel == 'blue'):
                 bmp.imageData[i][j] = blueChannel(bmp.imageData[i][j])
             elif (channel == 'green'):
