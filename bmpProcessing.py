@@ -99,9 +99,9 @@ def imageProcessing():
     filters.add_argument('--edge-detection',
                          '-ed',
                          type=str,
-                         choices=['canny', 'sobel'],
-                         metavar=colourers.toRed('<filter_name>'),
-                         help=colourers.toMagenta('perform a Canny Filter for Edge Detection'))
+                         choices=['canny', 'sobel', 'prewitt', 'roberts', 'kirsch'],
+                         metavar=colourers.toRed('<filter name>'),
+                         help=colourers.toMagenta('perform an edge detection'))
     filters.add_argument('--retrieve-color',
                          '-rv',
                          action='store_true',
@@ -110,6 +110,12 @@ def imageProcessing():
                          '-ee',
                          action='store_true', 
                          help=colourers.toMagenta('applying increased edge enhancement filter'))
+    filters.add_argument('--sharpen',
+                         action='store_true',
+                         help=colourers.toMagenta('sharpening the image'))
+    filters.add_argument('--unsharp',
+                        action='store_true',
+                        help=colourers.toMagenta('unsharp the image'))       
     filters.add_argument('--denoise',
                          action='store_true',
                          help=colourers.toMagenta('denoise the image'))
@@ -122,6 +128,12 @@ def imageProcessing():
                          choices=['simple', 'more', 'average', 'gaussian', 'motion'],
                          metavar=colourers.toRed('<type of blur>'),
                          help=colourers.toMagenta('perform the selected blur'))
+    filters.add_argument('--blur-iteration',
+                         '-bi',
+                         type=int,
+                         default=1,
+                         metavar=colourers.toRed('<number of iteration>'),
+                         help=colourers.toMagenta('apply N times the blur function'))
     filters.add_argument('--emboss',
                          action='store_true',
                          help=colourers.toMagenta('perform an embossing filter'))
@@ -165,7 +177,8 @@ def imageProcessing():
         
         if (args.rotate or args.scale or args.contrast or args.grayscale or 
             args.binary or args.channel or args.edge_detection or args.retrieve_color or
-            args.edge_enhancement or args.blur or args.emboss or args.overlap):
+            args.edge_enhancement or args.blur or args.emboss or args.overlap or args.texture_detection or
+            args.denoise or args.sharpen or args.unsharp):
             if not hp.atLeastOne(args.output, (
                 args.rotate,
                 args.scale,
@@ -178,9 +191,13 @@ def imageProcessing():
                 args.edge_enhancement,
                 args.blur,
                 args.emboss,
-                args.overlap
+                args.overlap,
+                args.texture_detection,
+                args.denoise,
+                args.sharpen,
+                args.unsharp
             )):
-                parser.error('--rotate/--scale/--contrast/--grayscale/--binary/--channel/--edge-detection/--retrieve-color/--edge-enhancement/--blur/--emboss/--overlap and --output must be given together')
+                parser.error('--rotate/--scale/--contrast/--grayscale/--binary/--channel/--edge-detection/--retrieve-color/--edge-enhancement/--blur/--emboss/--overlap/--texture-detection/--denoise/--sharpen/--unsharp and --output must be given together')
         
         if args.rotate:
             degree = args.rotate
@@ -249,7 +266,24 @@ def imageProcessing():
             if filterName == 'sobel':
                 colourers.info(f'Performing Sobel filter for edge detection')
                 bmp.imageData = Filters.sed(bmp.imageData, sigma=0.33, kernelSize=9)
+            if filterName == 'prewitt':
+                colourers.info(f'Performing Prewitt filter for edge detection')
+                bmp.imageData = Filters.ped(bmp.imageData, sigma=0.33, kernelSize=9)
+            if filterName == 'roberts':
+                colourers.info(f'Performing Roberts filter for edge detection')
+                bmp.imageData = Filters.red(bmp.imageData, sigma=0.33, kernelSize=9)
+            if filterName == 'kirsch':
+                colourers.info(f'Performing Kirsch filter for edge detection')
+                bmp.imageData = Filters.ked(bmp.imageData, sigma=0.33, kernelSize=9)
+
+        if args.sharpen:
+            colourers.info(f'Sharpening the image')
+            bmp.imageData = Filters.sharpen(bmp.imageData)
         
+        if args.unsharp:
+            colourers.info(f'Unsharpening the image')
+            bmp.imageData = Filters.unsharp(bmp.imageData)
+
         if args.retrieve_color:
             colourers.info(f'Retrieving color')
             bmp.imageData = Filters.retrieveColor(bmp.imageData)
@@ -257,8 +291,9 @@ def imageProcessing():
         if args.blur:
             blurType = args.blur
             colourers.info(f'Performing a {blurType} blur')
-            blurFunc = Filters.blur.switcher.get(blurType)
-            bmp.imageData = blurFunc(bmp.imageData)
+            for _ in range(args.blur_iteration):
+                blurFunc = Filters.blur.switcher.get(blurType)
+                bmp.imageData = blurFunc(bmp.imageData)
         
         if args.emboss:
             colourers.info(f'Performing emboss filter')

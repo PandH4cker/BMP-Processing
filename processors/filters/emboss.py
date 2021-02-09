@@ -1,10 +1,10 @@
 import numpy as np
-from utils import conv2D
+from utils import optimizedConv2D
 
 def emboss(image):
     embossKernel = np.array([
         [-2, -1, 0],
-        [-1, 1, 1],
-        [0, 1, 2]
+        [-1,  1, 1],
+        [ 0,  1, 2]
     ])
-    return conv2D(image, embossKernel)
+    return optimizedConv2D(image, embossKernel).clip(0, 255)

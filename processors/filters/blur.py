@@ -4,7 +4,6 @@ from utils import conv2D, optimizedConv2D
 def simpleBlur(image):
     simpleBlurKernel = np.ones((3, 3)) * 1.0 / 9
     return optimizedConv2D(image, kernel=simpleBlurKernel)
-    #return conv2D(image, simpleBlurKernel)
 
 def blurMore(image):
     return simpleBlur(simpleBlur(image))

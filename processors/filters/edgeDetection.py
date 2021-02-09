@@ -9,9 +9,73 @@ def sobelFilters(image):
         [-1, 0, 1]
     ], np.float32)
     Ky = np.array([
-        [ 1,  2,  1],
+        [-1, -2, -1],
         [ 0,  0,  0],
-        [-1, -2, -1]
+        [ 1,  2,  1]
+    ], np.float32)
+    
+    Ix = optimizedConv2D(image, Kx)
+    Iy = optimizedConv2D(image, Ky)
+
+    G = np.hypot(Ix, Iy)
+    G = G / G.max() * 255
+    theta = np.arctan2(Iy, Ix)
+
+    return (G, theta)
+
+def prewittFilters(image):
+    colourers.info(f'Applying Prewitt filter in X and Y directions')
+    Kx = np.array([
+        [-1, 0, 1],
+        [-1, 0, 1],
+        [-1, 0, 1]
+    ], np.float32)
+    Ky = np.array([
+        [-1, -1, -1],
+        [ 0,  0,  0],
+        [ 1,  1,  1]
+    ], np.float32)
+    
+    Ix = optimizedConv2D(image, Kx)
+    Iy = optimizedConv2D(image, Ky)
+
+    G = np.hypot(Ix, Iy)
+    G = G / G.max() * 255
+    theta = np.arctan2(Iy, Ix)
+
+    return (G, theta)
+
+def robertsFilters(image):
+    colourers.info(f'Applying Roberts filter in X and Y directions')
+    Kx = np.array([
+        [1,  0],
+        [0, -1]
+    ], np.float32)
+    Ky = np.array([
+        [ 0, 1],
+        [-1, 0]
+    ], np.float32)
+    
+    Ix = optimizedConv2D(image, Kx)
+    Iy = optimizedConv2D(image, Ky)
+
+    G = np.hypot(Ix, Iy)
+    G = G / G.max() * 255
+    theta = np.arctan2(Iy, Ix)
+
+    return (G, theta)
+
+def kirschFilters(image):
+    colourers.info(f'Applying Kirsch filter in X and Y directions')
+    Kx = np.array([
+        [-3, -3, 5],
+        [-3,  0, 5],
+        [-3, -3, 5]
+    ], np.float32)
+    Ky = np.array([
+        [-3, -3, -3],
+        [-3,  0, -3],
+        [ 5,  5,  5]
     ], np.float32)
     
     Ix = optimizedConv2D(image, Kx)
@@ -144,4 +208,19 @@ def cannyEdgeDetection(image, sigma=1, kernelSize=5, weakPix=75, strongPix=255, 
 def sobelEdgeDetection(image, sigma=1, kernelSize=5):
     smoothedImage = optimizedConv2D(image, gaussianKernel(kernelSize, sigma))
     gradientMatrix, thetaMatrix = sobelFilters(smoothedImage)
+    return gradientMatrix
+
+def prewittEdgeDetection(image, sigma=1, kernelSize=5):
+    smoothedImage = optimizedConv2D(image, gaussianKernel(kernelSize, sigma))
+    gradientMatrix, thetaMatrix = prewittFilters(smoothedImage)
+    return gradientMatrix
+
+def robertsEdgeDetection(image, sigma=1, kernelSize=5):
+    smoothedImage = optimizedConv2D(image, gaussianKernel(kernelSize, sigma))
+    gradientMatrix, thetaMatrix = robertsFilters(smoothedImage)
+    return gradientMatrix
+
+def kirschEdgeDetection(image, sigma=1, kernelSize=5):
+    smoothedImage = optimizedConv2D(image, gaussianKernel(kernelSize, sigma))
+    gradientMatrix, thetaMatrix = kirschFilters(smoothedImage)
     return gradientMatrix
