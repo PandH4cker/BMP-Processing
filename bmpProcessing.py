@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import argparse, os, sys, numpy as np, colorama
-from utils import helpers as hp, colourers
+from utils import helpers as hp, colourers, gaussianKernel, gaborKernel
 from processors import printers as Printers, transformers as Transformers, filters as Filters
 from middlewares import required_length
 from formats import BMP, PNG
@@ -110,6 +110,13 @@ def imageProcessing():
                          '-ee',
                          action='store_true', 
                          help=colourers.toMagenta('applying increased edge enhancement filter'))
+    filters.add_argument('--denoise',
+                         action='store_true',
+                         help=colourers.toMagenta('denoise the image'))
+    filters.add_argument('--texture-detection',
+                         '-td',
+                         action='store_true',
+                         help=colourers.toMagenta('applying texture detection (Gabor Filter)'))
     filters.add_argument('--blur',
                          type=str,
                          choices=['simple', 'more', 'average', 'gaussian', 'motion'],
@@ -222,6 +229,14 @@ def imageProcessing():
                 colourers.info(f'Keeping only {channel} channel of the image')
                 bmp.imageData = Transformers.toChannel(bmp, channel, half)
         
+        if args.denoise:
+            colourers.info(f'Denoising the image')
+            bmp.imageData = Filters.wienerFilter(bmp.imageData, gaussianKernel(9, sigma=0.33), K=10)
+        
+        if args.texture_detection:
+            colourers.info(f'Applying texture detection (Gabor Filter)')
+            bmp.imageData = Filters.gaborFilter(bmp.imageData, gaborKernel(0))
+        
         if args.edge_enhancement:
             colourers.info(f'Applying increased edge enhancement filter')
             bmp.imageData = Filters.iee(bmp.imageData)
@@ -231,6 +246,9 @@ def imageProcessing():
             if filterName == 'canny':
                 colourers.info(f'Performing Canny filter for edge detection')
                 bmp.imageData = Filters.ced(bmp.imageData, sigma=0.33, kernelSize=9, weakPix=50)
+            if filterName == 'sobel':
+                colourers.info(f'Performing Sobel filter for edge detection')
+                bmp.imageData = Filters.sed(bmp.imageData, sigma=0.33, kernelSize=9)
         
         if args.retrieve_color:
             colourers.info(f'Retrieving color')

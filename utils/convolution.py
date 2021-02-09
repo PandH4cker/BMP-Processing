@@ -30,11 +30,10 @@ def optimizedConv2D(image, kernel):
         currentLine = i // kernelRowLength
         currentColumn = i % kernelRowLength
 
-        copies[i] *= flattenedKernel[i]
         copies[i] = np.roll(copies[i], 
                             (
                                 currentLine - halfkernelRowLength, 
                                 currentColumn - halfkernelRowLength
                             ), 
-                            axis=(0, 1)) 
+                            axis=(0, 1)) * flattenedKernel[i]
     return np.sum(copies, axis=0)

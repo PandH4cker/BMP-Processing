@@ -1,13 +1,5 @@
 import numpy as np
-from utils import colourers, conv2D, optimizedConv2D
-
-def gaussianKernel(size, sigma=1):
-    colourers.info(f'Creating gaussian kernel of size {size} with sigma of {sigma}')
-    size = int(size) // 2
-    x, y = np.mgrid[-size:size+1, -size:size+1]
-    normal = 1 / (2.0 * np.pi * sigma**2)
-    g = np.exp(-((x**2 + y**2) / (2.0 * sigma ** 2))) * normal
-    return g
+from utils import colourers, conv2D, optimizedConv2D, gaussianKernel
 
 def sobelFilters(image):
     colourers.info(f'Applying Sobel filter in X and Y directions')
@@ -148,3 +140,8 @@ def cannyEdgeDetection(image, sigma=1, kernelSize=5, weakPix=75, strongPix=255, 
     nonMaxImage = nonMaxSuppression(gradientMatrix, thetaMatrix)
     thresholdImage = threshold(nonMaxImage, lowThresholdRatio=lowThreshold, highThresholdRatio=highThreshold, weakPix=weakPix, strongPix=strongPix)
     return hysteresis(thresholdImage, weakPixel=weakPix, strongPixel=strongPix)
+
+def sobelEdgeDetection(image, sigma=1, kernelSize=5):
+    smoothedImage = optimizedConv2D(image, gaussianKernel(kernelSize, sigma))
+    gradientMatrix, thetaMatrix = sobelFilters(smoothedImage)
+    return gradientMatrix
