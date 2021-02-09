@@ -1,5 +1,5 @@
 import numpy as np
-from utils import colourers, conv2D
+from utils import colourers, conv2D, optimizedConv2D
 
 def gaussianKernel(size, sigma=1):
     colourers.info(f'Creating gaussian kernel of size {size} with sigma of {sigma}')
@@ -22,8 +22,8 @@ def sobelFilters(image):
         [-1, -2, -1]
     ], np.float32)
     
-    Ix = conv2D(image, Kx)
-    Iy = conv2D(image, Ky)
+    Ix = optimizedConv2D(image, Kx)
+    Iy = optimizedConv2D(image, Ky)
 
     G = np.hypot(Ix, Iy)
     G = G / G.max() * 255
@@ -143,7 +143,7 @@ def hysteresis(image, weakPixel, strongPixel):
     return image
 
 def cannyEdgeDetection(image, sigma=1, kernelSize=5, weakPix=75, strongPix=255, lowThreshold=0.05, highThreshold=0.15):
-    smoothedImage = conv2D(image, gaussianKernel(kernelSize, sigma))
+    smoothedImage = optimizedConv2D(image, gaussianKernel(kernelSize, sigma))
     gradientMatrix, thetaMatrix = sobelFilters(smoothedImage)
     nonMaxImage = nonMaxSuppression(gradientMatrix, thetaMatrix)
     thresholdImage = threshold(nonMaxImage, lowThresholdRatio=lowThreshold, highThresholdRatio=highThreshold, weakPix=weakPix, strongPix=strongPix)

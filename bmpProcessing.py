@@ -98,7 +98,9 @@ def imageProcessing():
     filters = parser.add_argument_group(colourers.toCyan('filters'))
     filters.add_argument('--edge-detection',
                          '-ed',
-                         action='store_true',
+                         type=str,
+                         choices=['canny', 'sobel'],
+                         metavar=colourers.toRed('<filter_name>'),
                          help=colourers.toMagenta('perform a Canny Filter for Edge Detection'))
     filters.add_argument('--retrieve-color',
                          '-rv',
@@ -225,8 +227,10 @@ def imageProcessing():
             bmp.imageData = Filters.iee(bmp.imageData)
 
         if args.edge_detection:
-            colourers.info(f'Performing edge detection')
-            bmp.imageData = Filters.ced(bmp.imageData, sigma=0.33, kernelSize=9, lowThreshold=0.07843137, highThreshold=0.25, weakPix=50)
+            filterName = args.edge_detection
+            if filterName == 'canny':
+                colourers.info(f'Performing Canny filter for edge detection')
+                bmp.imageData = Filters.ced(bmp.imageData, sigma=0.33, kernelSize=9, weakPix=50)
         
         if args.retrieve_color:
             colourers.info(f'Retrieving color')

@@ -1,3 +1,4 @@
+from numpy.fft import fft, ifft, fft2, ifft2, fftshift, ifftshift, rfft2, irfft2
 import numpy as np
 
 def conv2D(image, kernel, half=False):
@@ -17,3 +18,23 @@ def conv2D(image, kernel, half=False):
                     it += image[j + 1][i + k] * kernel[l + py][k + px]
             newImage[j][i] = it
     return np.clip(newImage, 0, 255).astype(float)
+
+def optimizedConv2D(image, kernel):
+    image = image.astype(np.float16)
+    kernelRowLength = len(kernel)
+    halfkernelRowLength = kernelRowLength // 2
+    flattenedKernel = kernel.flatten()
+    numberOfCopies = len(flattenedKernel)
+    copies = np.array([image.copy() for _ in range(numberOfCopies)])
+    for i in range(numberOfCopies):
+        currentLine = i // kernelRowLength
+        currentColumn = i % kernelRowLength
+
+        copies[i] *= flattenedKernel[i]
+        copies[i] = np.roll(copies[i], 
+                            (
+                                currentLine - halfkernelRowLength, 
+                                currentColumn - halfkernelRowLength
+                            ), 
+                            axis=(0, 1)) 
+    return np.sum(copies, axis=0)
