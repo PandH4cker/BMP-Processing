@@ -35,23 +35,23 @@ def toChannel(bmp, channel, half=False):
         Returns
         -------
         np.ndarray((h, w, 3))
-    """   
-    width = len(bmp.imageData[0])
+    """
+    newImage = bmp.imageData.copy()
+    width = len(newImage[0])
     if half:
         width = int(width/2)
-    for i in range(len(bmp.imageData)):
+    for i in range(len(newImage)):
         for j in range(width):
             if (channel == 'blue'):
-                bmp.imageData[i][j] = blueChannel(bmp.imageData[i][j])
+                newImage[i][j] = blueChannel(newImage[i][j])
             elif (channel == 'green'):
-                bmp.imageData[i][j] = greenChannel(bmp.imageData[i][j])
+                newImage[i][j] = greenChannel(newImage[i][j])
             elif (channel == 'red'):
-                bmp.imageData[i][j] = redChannel(bmp.imageData[i][j])
+                newImage[i][j] = redChannel(newImage[i][j])
             elif ('red' in channel and 'blue' in channel):
-                bmp.imageData[i][j] = redBlueChannel(bmp.imageData[i][j])
+                newImage[i][j] = redBlueChannel(newImage[i][j])
             elif ('red' in channel and 'green' in channel):
-                bmp.imageData[i][j] = redGreenChannel(bmp.imageData[i][j])
+                newImage[i][j] = redGreenChannel(newImage[i][j])
             elif ('green' in channel and 'blue' in channel):
-                bmp.imageData[i][j] = greenBlueChannel(bmp.imageData[i][j])
-
-    return bmp.imageData
+                newImage[i][j] = greenBlueChannel(newImage[i][j])
+    return newImage

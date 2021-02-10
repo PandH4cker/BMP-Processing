@@ -15,11 +15,12 @@ def imageInvert(bmp, half=False):
         -------
         np.ndarray((h, w, 3))
     """
-    width = len(bmp.imageData[0])
+    newImage = bmp.imageData.copy()
+    width = len(newImage[0])
     if half:
         width = int(width/2)
-    for i in range(len(bmp.imageData)):
+    for i in range(len(newImage)):
         for j in range(width):
-            bmp.imageData[i][j] = invert(bmp.imageData[i][j])
+            newImage[i][j] = invert(newImage[i][j])
     
-    return bmp.imageData
+    return newImage

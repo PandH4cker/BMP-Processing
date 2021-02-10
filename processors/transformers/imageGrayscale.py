@@ -15,11 +15,12 @@ def imageGrayscale(bmp, half=False):
         -------
         np.ndarray((h, w, 3))
     """
-    width = len(bmp.imageData[0])
+    newImage = bmp.imageData.copy()
+    width = len(newImage[0])
     if half:
         width = int(width/2)
-    for i in range(len(bmp.imageData)):
+    for i in range(len(newImage)):
         for j in range(width):
-            bmp.imageData[i][j] = averageLuminosity(bmp.imageData[i][j])
+            newImage[i][j] = averageLuminosity(newImage[i][j])
 
-    return np.clip(bmp.imageData, 0, 255).astype(float)
+    return np.clip(newImage, 0, 255).astype(float)

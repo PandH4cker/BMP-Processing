@@ -14,14 +14,15 @@ def imageBinary(bmp, half=False):
         -------
         np.ndarray((h, w, 3))
     """
-    width = len(bmp.imageData[0])
+    newImage = bmp.imageData.copy()
+    width = len(newImage[0])
     if half:
         width = int(width/2)
-    for i in range(len(bmp.imageData)):
+    for i in range(len(newImage)):
         for j in range(width):
-            if all(i <= 128 for i in bmp.imageData[i][j]):
-                bmp.imageData[i][j] = (0, 0, 0)
+            if all(i <= 128 for i in newImage[i][j]):
+                newImage[i][j] = (0, 0, 0)
             else:
-                bmp.imageData[i][j] = (255, 255, 255)
+               newImage[i][j] = (255, 255, 255)
     
-    return bmp.imageData
+    return newImage
