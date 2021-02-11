@@ -3,6 +3,22 @@ from numpy.fft import fft2, ifft2
 from utils import colourers
 
 def wienerFilter(image, kernel, K):
+    """
+        Apply the wiener filter (using Wiener deconvolution by FFT)
+
+        Parameters
+        ----------
+        image: ndarray((h, w, 3))
+
+        kernel: ndarray((h, w))
+
+        K: int
+
+        Returns
+        -------
+        ndarray((h, w, 3))
+    """
+
     kernel /= np.sum(kernel)
     newImage = image.copy()
     newImage = fft2(newImage)

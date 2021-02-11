@@ -1,6 +1,10 @@
 import sys
 from colorama import Fore, Back, Style
 
+"""
+    Defining helpers to colour the text when printing info, errors, success...
+"""
+
 def success(s:str):
     print(toGreen('[+] ') + s)
 

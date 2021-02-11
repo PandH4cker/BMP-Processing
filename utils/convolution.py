@@ -2,6 +2,21 @@ from numpy.fft import fft, ifft, fft2, ifft2, fftshift, ifftshift, rfft2, irfft2
 import numpy as np
 
 def conv2D(image, kernel, half=False):
+    """
+        Apply a naive convolution between an image and a kernel
+
+        Parameters
+        ----------
+        image: ndarray((h, w, 3))
+
+        kernel: ndarray((h, w))
+
+        half: Boolean - False by default, defining if we have to take only the half of the image
+
+        Returns
+        ------
+        ndarray((h, w, 3))
+    """
     s = image.shape
     py = int((kernel.shape[0] - 1)/2)
     px = int((kernel.shape[1] - 1)/2)
@@ -20,6 +35,20 @@ def conv2D(image, kernel, half=False):
     return np.clip(newImage, 0, 255).astype(float)
 
 def optimizedConv2D(image, kernel):
+    """
+        Apply an optimized convolution between the image and the kernel
+
+        Parameters
+        ----------
+        image: ndarray((h, w, 3))
+        
+        kernel: ndarray((h, w))
+
+        Returns
+        ------
+        ndarray((h, w, 3))
+    """
+
     image = image.astype(np.float16)
     kernelRowLength = len(kernel)
     halfkernelRowLength = kernelRowLength // 2

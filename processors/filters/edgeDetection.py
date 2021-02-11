@@ -2,6 +2,18 @@ import numpy as np
 from utils import colourers, conv2D, optimizedConv2D, gaussianKernel
 
 def sobelFilters(image):
+    """
+        Apply Sobel filters in X and Y directions
+
+        Parameters
+        ----------
+        image: ndarray((h, w, 3))
+
+        Returns
+        -------
+        ndarray((h, w, 3))
+    """
+
     colourers.info(f'Applying Sobel filter in X and Y directions')
     Kx = np.array([
         [-1, 0, 1],
@@ -24,6 +36,18 @@ def sobelFilters(image):
     return (G, theta)
 
 def prewittFilters(image):
+    """
+        Apply Prewitt filters in X and Y directions
+
+        Parameters
+        ----------
+        image: ndarray((h, w, 3))
+
+        Returns
+        -------
+        ndarray((h, w, 3))
+    """
+
     colourers.info(f'Applying Prewitt filter in X and Y directions')
     Kx = np.array([
         [-1, 0, 1],
@@ -46,6 +70,18 @@ def prewittFilters(image):
     return (G, theta)
 
 def robertsFilters(image):
+    """
+        Apply Roberts filters in X and Y directions
+
+        Parameters
+        ----------
+        image: ndarray((h, w, 3))
+
+        Returns
+        -------
+        ndarray((h, w, 3))
+    """
+
     colourers.info(f'Applying Roberts filter in X and Y directions')
     Kx = np.array([
         [1,  0],
@@ -66,6 +102,18 @@ def robertsFilters(image):
     return (G, theta)
 
 def kirschFilters(image):
+    """
+        Apply Kirsch filters in X and Y directions
+
+        Parameters
+        ----------
+        image: ndarray((h, w, 3))
+
+        Returns
+        -------
+        ndarray((h, w, 3))
+    """
+
     colourers.info(f'Applying Kirsch filter in X and Y directions')
     Kx = np.array([
         [-3, -3, 5],
@@ -88,6 +136,19 @@ def kirschFilters(image):
     return (G, theta)
 
 def nonMaxSuppression(image, D):
+    """
+        Remove irrelevant pixels using the matrix of angles
+
+        Parameters
+        ----------
+        image: ndarray((h, w, 3))
+        D: ndarray((h, w, 3))
+
+        Returns
+        -------
+        ndarray((h, w, 3))
+    """
+
     colourers.info(f'Removing non maxima pixels using gradient directions matrix')
     M, N, dim = image.shape
     Z = np.zeros((M, N, dim), dtype=np.int32)
@@ -137,6 +198,27 @@ def nonMaxSuppression(image, D):
     return Z
 
 def threshold(image, lowThresholdRatio=0.05, highThresholdRatio=0.09, weakPix=25, strongPix=255):
+    """
+        Double thresholding the image by using the low and high threshold 
+        and the weak and strong pixel values.
+
+        Parameters
+        ----------
+        image: ndarray((h, w, 3))
+
+        lowThresholdRatio: float
+
+        highThresholdRatio: float
+
+        weakPix: int
+
+        strongPix: int
+
+        Returns
+        -------
+        ndarray((h, w, 3))
+    """
+
     colourers.info(f'Performing double threshold to detect weak and strong pixels with a threshold of {lowThresholdRatio}-{highThresholdRatio}')
     highThreshold = image.max() * highThresholdRatio
     lowThreshold = highThreshold * lowThresholdRatio
@@ -158,6 +240,21 @@ def threshold(image, lowThresholdRatio=0.05, highThresholdRatio=0.09, weakPix=25
     return res
 
 def hysteresis(image, weakPixel, strongPixel):
+    """
+        Applying hysteresis for reducing errors and sharpening edges.
+
+        Parameters
+        ----------
+        image: ndarray((h, w, 3))
+
+        weakPixel: int
+
+        strongPixel: int
+
+        Returns
+        -------
+        ndarray((h, w, 3))
+    """
     colourers.info(f'Performing hysteresis using weak pixel of {weakPixel} and strong pixel of {strongPixel}')
     M, N, dim = image.shape
     weak = weakPixel
@@ -199,6 +296,30 @@ def hysteresis(image, weakPixel, strongPixel):
     return image
 
 def cannyEdgeDetection(image, sigma=1, kernelSize=5, weakPix=75, strongPix=255, lowThreshold=0.05, highThreshold=0.15):
+    """
+        Apply the Canny filter for an edge detection
+
+        Parameters
+        ----------
+        image: ndarray((h, w, 3))
+
+        sigma: float
+
+        kernelSize: int
+
+        weakPix: int
+
+        strongPix: int
+
+        lowThreshold: int
+
+        highThreshold: int
+
+        Returns
+        -------
+        ndarray((h, w, 3))
+    """
+
     smoothedImage = optimizedConv2D(image, gaussianKernel(kernelSize, sigma))
     gradientMatrix, thetaMatrix = sobelFilters(smoothedImage)
     nonMaxImage = nonMaxSuppression(gradientMatrix, thetaMatrix)
@@ -206,21 +327,85 @@ def cannyEdgeDetection(image, sigma=1, kernelSize=5, weakPix=75, strongPix=255, 
     return hysteresis(thresholdImage, weakPixel=weakPix, strongPixel=strongPix)
 
 def sobelEdgeDetection(image, sigma=1, kernelSize=5):
+    """
+        Apply the Sobel filter for an edge detection
+
+        Parameters
+        ----------
+        image: ndarray((h, w, 3))
+
+        sigma: float
+
+        kernelSize: int
+
+        Returns
+        -------
+        ndarray((h, w, 3))
+    """
+
     smoothedImage = optimizedConv2D(image, gaussianKernel(kernelSize, sigma))
     gradientMatrix, thetaMatrix = sobelFilters(smoothedImage)
     return gradientMatrix
 
 def prewittEdgeDetection(image, sigma=1, kernelSize=5):
+    """
+        Apply the Prewitt filter for an edge detection
+
+        Parameters
+        ----------
+        image: ndarray((h, w, 3))
+
+        sigma: float
+
+        kernelSize: int
+
+        Returns
+        -------
+        ndarray((h, w, 3))
+    """
+
     smoothedImage = optimizedConv2D(image, gaussianKernel(kernelSize, sigma))
     gradientMatrix, thetaMatrix = prewittFilters(smoothedImage)
     return gradientMatrix
 
 def robertsEdgeDetection(image, sigma=1, kernelSize=5):
+    """
+        Apply the Roberts filter for an edge detection
+
+        Parameters
+        ----------
+        image: ndarray((h, w, 3))
+
+        sigma: float
+
+        kernelSize: int
+
+        Returns
+        -------
+        ndarray((h, w, 3))
+    """
+
     smoothedImage = optimizedConv2D(image, gaussianKernel(kernelSize, sigma))
     gradientMatrix, thetaMatrix = robertsFilters(smoothedImage)
     return gradientMatrix
 
 def kirschEdgeDetection(image, sigma=1, kernelSize=5):
+    """
+        Apply the Kirsch filter for an edge detection
+
+        Parameters
+        ----------
+        image: ndarray((h, w, 3))
+
+        sigma: float
+
+        kernelSize: int
+
+        Returns
+        -------
+        ndarray((h, w, 3))
+    """
+
     smoothedImage = optimizedConv2D(image, gaussianKernel(kernelSize, sigma))
     gradientMatrix, thetaMatrix = kirschFilters(smoothedImage)
     return gradientMatrix

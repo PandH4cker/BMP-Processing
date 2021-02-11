@@ -2,6 +2,18 @@ from utils import optimizedConv2D
 import numpy as np
 
 def sharpen(image):
+    """
+        Performing a sharpening filter
+
+        Parameters
+        ----------
+        image: ndarray((h, w, 3))
+
+        Returns
+        -------
+        ndarray((h, w, 3))
+    """
+
     increasedEdgeEnhanceKernel = np.array([
         [ 0, -1,  0],
         [-1,  5, -1],
@@ -11,6 +23,18 @@ def sharpen(image):
     return optimizedConv2D(image, increasedEdgeEnhanceKernel).clip(0, 255)
 
 def unsharp(image):
+    """
+        Performing an unsharpening filter
+
+        Parameters
+        ----------
+        image: ndarray((h, w, 3))
+
+        Returns
+        -------
+        ndarray((h, w, 3))
+    """
+
     increasedEdgeEnhanceKernel = np.array([
         [1,   4,     6,  4, 1],
         [4,  16,    24, 16, 4],

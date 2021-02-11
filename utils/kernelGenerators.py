@@ -2,6 +2,20 @@ import numpy as np
 from utils import colourers
 
 def gaussianKernel(size, sigma=1):
+    """
+        Generate a gaussian kernel depending on the size and the sigma
+
+        Parameters
+        ----------
+        size: int
+        
+        sigma: float
+
+        Returns
+        ------
+        ndarray((h, w))
+    """
+
     colourers.info(f'Creating gaussian kernel of size {size} with sigma of {sigma}')
     size = int(size) // 2
     x, y = np.mgrid[-size:size+1, -size:size+1]
@@ -10,6 +24,29 @@ def gaussianKernel(size, sigma=1):
     return g
 
 def gaborKernel(size, sigma=8.0, theta=np.pi/4, lam=10.0, gamma=0.5, psi=3):
+    """
+        Generate a gabor kernel depending on the size, sigma, theta, lambda, gamma, psi 
+        respectively about the Gabor kernel formula.
+
+        Parameters
+        ----------
+        size: int
+
+        sigma: float
+
+        theta: float
+
+        lam: float
+
+        gamma: float
+
+        psi: float
+
+        Returns
+        ------
+        ndarray((h, w))
+    """
+
     sigmaX = sigma
     sigmaY = float(sigma) / gamma
 
